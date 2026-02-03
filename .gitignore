@@ -1,0 +1,13 @@
+# Compiled files
+*.o
+boids
+
+# Build directory
+build/
+
+# Mac files
+.DS_Store
+
+# IDE files
+.vscode/
+.idea/
