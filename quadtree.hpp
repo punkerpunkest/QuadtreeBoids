@@ -1,3 +1,4 @@
+#include "circle.hpp"
 #include "quadtreenode.hpp"
 #include <memory>
 #include <vector>
@@ -21,5 +22,6 @@ public:
   bool canContain(Point p);
   void insertPoint(Point p);
   void subDivide();
-  std::vector<Point> query(QuadTree &node, std::vector<Point> &);
+  void query(QuadTree &node, std::vector<Point> &found);
+  void queryCircle(QuadTree &node, Circle &c, std::vector<Point> &found);
 };

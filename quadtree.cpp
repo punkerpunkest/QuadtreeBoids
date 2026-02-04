@@ -1,4 +1,5 @@
 #include "quadtree.hpp"
+#include "circle.hpp"
 #include "quadtreenode.hpp"
 #include <memory>
 #include <vector>
@@ -58,17 +59,20 @@ void QuadTree::subDivide() {
   nodes.southWest = std::make_unique<QuadTree>(southWestBoundary, capacity);
 }
 
-std::vector<Point> QuadTree::query(QuadTree &node, std::vector<Point> &found) {
+void QuadTree::query(QuadTree &node, std::vector<Point> &found) {
   if (!node.boundary.intersects(boundary)) {
-    return found;
+    return;
   }
-  if (boundary.contains(node.boundary)) {
+
+  if (boundary.contains(
+          node.boundary)) { // if we call subnodes and they are within the
+                            // boundary, just add all their points
     for (auto &p : node.points) {
       found.push_back(p);
     }
-    return found;
+    return;
   }
-
+  // this should be correct :)
   for (auto &p : node.points) {
     if (boundary.canContain(p)) {
       found.push_back(p);
@@ -81,6 +85,29 @@ std::vector<Point> QuadTree::query(QuadTree &node, std::vector<Point> &found) {
     query(*node.nodes.southEast, found);
     query(*node.nodes.southWest, found);
   }
+}
 
-  return found;
+void QuadTree::queryCircle(QuadTree &node, Circle &c,
+                           std::vector<Point> &found) {
+  if (!c.intersects(node.boundary)) { // circle doesn't overlap anything
+    return;
+  }
+  if (c.completeContains(node.boundary)) {
+    for (auto &p : node.points) {
+      found.push_back(p);
+    }
+    return;
+  }
+  for (auto &p : node.points) {
+    if (c.canContain(p)) {
+      found.push_back(p);
+    }
+  }
+
+  if (divided) {
+    queryCircle(*node.nodes.northEast, c, found);
+    queryCircle(*node.nodes.northWest, c, found);
+    queryCircle(*node.nodes.southEast, c, found);
+    queryCircle(*node.nodes.southWest, c, found);
+  }
 }
