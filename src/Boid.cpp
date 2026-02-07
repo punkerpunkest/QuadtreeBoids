@@ -1,3 +1,4 @@
+#include "Profiler.hpp"
 #include "Boid.hpp"
 #include <cmath>
 
@@ -10,6 +11,7 @@ Boid::Boid(const float x, const float y) noexcept
     ) {}
 
 sf::Vector2f Boid::align(const std::vector<Boid*>& boids) const noexcept {
+    PROFILE("Boid::align");
     sf::Vector2f steering(0.0f, 0.0f);
     int total = 0;
 
@@ -33,6 +35,7 @@ sf::Vector2f Boid::align(const std::vector<Boid*>& boids) const noexcept {
 }
 
 sf::Vector2f Boid::cohesion(const std::vector<Boid*>& boids) const noexcept {
+    PROFILE("Boid::cohesion");
     sf::Vector2f steering(0.0f, 0.0f);
     int total = 0;
 
@@ -56,12 +59,13 @@ sf::Vector2f Boid::cohesion(const std::vector<Boid*>& boids) const noexcept {
 }
 
 sf::Vector2f Boid::separation(const std::vector<Boid*>& boids) const noexcept {
+    PROFILE("Boid::separation");
     sf::Vector2f steering(0.0f, 0.0f);
     int total = 0;
 
     for (const auto* other : boids) {
         const float d = magnitude(position - other->position);
-        if (other != this && d < perceptionRadius) {
+        if (other != this && d < perceptionRadius && d > 0.01f) {
             sf::Vector2f diff = position - other->position;
             diff /= (d * d);
             steering += diff;
@@ -80,6 +84,7 @@ sf::Vector2f Boid::separation(const std::vector<Boid*>& boids) const noexcept {
 }
 
 void Boid::flock(const std::vector<Boid*>& boids) noexcept {
+    PROFILE("Boid::flock");
     const sf::Vector2f alignment = align(boids);
     const sf::Vector2f cohesionForce = cohesion(boids);
     const sf::Vector2f separationForce = separation(boids);
