@@ -1,3 +1,4 @@
+#include "profiler.hpp"
 #include "Boid.hpp"
 #include "circle.hpp"
 #include "quadtree.hpp"
@@ -14,6 +15,7 @@ Boid::Boid(const float x, const float y) noexcept
     ) {}
 
 sf::Vector2f Boid::align(QuadTree& tree) const noexcept {
+    PROFILE("Boid::align");
     Circle range(position.x, position.y, perceptionRadius);
     std::vector<Point> nearbyPoints;
     tree.queryCircle(tree, range, nearbyPoints);
@@ -42,6 +44,7 @@ sf::Vector2f Boid::align(QuadTree& tree) const noexcept {
 }
 
 sf::Vector2f Boid::cohesion(QuadTree& tree) const noexcept {
+    PROFILE("Boid::cohesion");
     Circle range(position.x, position.y, perceptionRadius);
     std::vector<Point> nearbyPoints;
     tree.queryCircle(tree, range, nearbyPoints);
@@ -72,6 +75,7 @@ sf::Vector2f Boid::cohesion(QuadTree& tree) const noexcept {
 }
 
 sf::Vector2f Boid::separation(QuadTree& tree) const noexcept {
+    PROFILE("Boid::separation");
     Circle range(position.x, position.y, perceptionRadius);
     std::vector<Point> nearbyPoints;
     tree.queryCircle(tree, range, nearbyPoints);
@@ -103,6 +107,7 @@ sf::Vector2f Boid::separation(QuadTree& tree) const noexcept {
 }
 
 void Boid::flock(QuadTree& tree) noexcept {
+    PROFILE("Boid::flock");
     const sf::Vector2f alignment = align(tree);
     const sf::Vector2f cohesionForce = cohesion(tree);
     const sf::Vector2f separationForce = separation(tree);

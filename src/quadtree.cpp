@@ -1,3 +1,4 @@
+#include "profiler.hpp" 
 #include "quadtree.hpp"
 #include "circle.hpp"
 #include "quadtreenode.hpp"
@@ -13,6 +14,7 @@ bool QuadTree::canContain(Point p) {
 }
 
 void QuadTree::insertPoint(Point p) {
+  PROFILE("QuadTree::insertPoint");
   if (!canContain(p)) {
     return;
   }
@@ -51,6 +53,7 @@ void QuadTree::insertPoint(Point p) {
 }
 
 void QuadTree::subDivide() {
+  PROFILE("QuadTree::subDivide");
   auto width = boundary.getWidth();
   auto height = boundary.getHeight();
   auto xCoord = boundary.getXCoord();
@@ -101,26 +104,35 @@ void QuadTree::query(QuadTree &node, std::vector<Point> &found) {
 
 void QuadTree::queryCircle(QuadTree &node, Circle &c,
                            std::vector<Point> &found) {
-  if (!c.intersects(node.boundary)) {
-    return;
+  {
+    PROFILE("queryCircle - Intersection");
+    if (!c.intersects(node.boundary)) {
+      return;
+    }
+  }
+
+  {
+    PROFILE("queryCircle - Complete Contains");
+    if (c.completeContains(node.boundary)) {
+      for (auto &p : node.points) {
+        found.push_back(p);
+      }
+      if (node.divided) {
+        queryCircle(*node.nodes.northEast, c, found);
+        queryCircle(*node.nodes.northWest, c, found);
+        queryCircle(*node.nodes.southEast, c, found);
+        queryCircle(*node.nodes.southWest, c, found);
+      }
+      return;
+    }
   }
   
-  if (c.completeContains(node.boundary)) {
+  {
+    PROFILE("queryCirlce - Check points");
     for (auto &p : node.points) {
-      found.push_back(p);
-    }
-    if (node.divided) {
-      queryCircle(*node.nodes.northEast, c, found);
-      queryCircle(*node.nodes.northWest, c, found);
-      queryCircle(*node.nodes.southEast, c, found);
-      queryCircle(*node.nodes.southWest, c, found);
-    }
-    return;
-  }
-  
-  for (auto &p : node.points) {
-    if (c.canContain(p)) {
-      found.push_back(p);
+      if (c.canContain(p)) {
+        found.push_back(p);
+      }
     }
   }
 

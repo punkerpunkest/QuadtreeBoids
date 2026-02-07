@@ -1,3 +1,4 @@
+#include "profiler.hpp"
 #include <SFML/Graphics.hpp>
 #include "Boid.hpp"
 #include "quadtree.hpp"
@@ -18,6 +19,7 @@ int main() {
     
     int frameCount = 0;
     bool showQuadTree = true; 
+    sf::Clock printClock;
     
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
@@ -40,20 +42,25 @@ int main() {
         }
         
         frameCount++;
-    
+
         QuadTreeNode boundary(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
         QuadTree tree(boundary, 1);
-        
-        for (auto& boid : boids) {
-            Point p(boid.getX(), boid.getY(), &boid);
-            tree.insertPoint(p);
+
+        {
+            PROFILE("QuadTree Build");
+            for (auto& boid : boids) {
+                Point p(boid.getX(), boid.getY(), &boid);
+                tree.insertPoint(p);
+            }
         }
         
-    
-        for (auto& boid: boids) {
-            boid.flock(tree);
-            boid.update();
-            boid.edges(WIDTH, HEIGHT);
+        {
+            PROFILE("Flocking");
+            for (auto& boid: boids) {
+                boid.flock(tree);
+                boid.update();
+                boid.edges(WIDTH, HEIGHT);
+            }
         }
         
         window.clear(sf::Color::Black);
@@ -67,6 +74,11 @@ int main() {
         }
         
        window.display();
+
+        if (printClock.getElapsedTime().asSeconds() >= 5.0f) {
+            Profiler::get().print();
+            printClock.restart();
+        }
     }
 
     return 0;
