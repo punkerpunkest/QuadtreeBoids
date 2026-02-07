@@ -23,6 +23,10 @@ void QuadTree::insertPoint(Point p) {
     points.push_back(p);
   } else {
     if (!divided) {
+      if (boundary.getWidth() < 1.0f || boundary.getHeight() < 1.0f) {
+        points.push_back(p);
+        return;
+      }
       this->subDivide();
       std::vector<Point> oldPoints = points;
       points.clear();
@@ -56,6 +60,11 @@ void QuadTree::subDivide() {
   PROFILE("QuadTree::subDivide");
   auto width = boundary.getWidth();
   auto height = boundary.getHeight();
+
+  if (width < 1.0f || height < 1.0f) {
+    return;  
+  }
+
   auto xCoord = boundary.getXCoord();
   auto yCoord = boundary.getYCoord();
 

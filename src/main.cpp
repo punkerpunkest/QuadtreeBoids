@@ -15,8 +15,14 @@ int main() {
     window.setFramerateLimit(60);
     
     std::vector<Boid> boids;
-    boids.reserve(200);
+    boids.reserve(1000);
     
+    for (int i = 0; i < 1000; ++i) {
+        float x = rand() % WIDTH;
+        float y = rand() % HEIGHT;
+        boids.emplace_back(x, y);
+    }
+
     int frameCount = 0;
     bool showQuadTree = true; 
     sf::Clock printClock;
@@ -44,7 +50,7 @@ int main() {
         frameCount++;
 
         QuadTreeNode boundary(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
-        QuadTree tree(boundary, 1);
+        QuadTree tree(boundary, 125);
 
         {
             PROFILE("QuadTree Build");

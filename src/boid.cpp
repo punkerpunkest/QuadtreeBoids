@@ -88,7 +88,7 @@ sf::Vector2f Boid::separation(QuadTree& tree) const noexcept {
         if (!other || other == this) continue;
         
         const float d = magnitude(position - other->position);
-        if (d < perceptionRadius && d > 0) {
+        if (d < perceptionRadius && d > 0.01f) {
             sf::Vector2f diff = position - other->position;
             diff /= (d * d);
             steering += diff;
