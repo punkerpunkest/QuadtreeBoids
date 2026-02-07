@@ -10,12 +10,12 @@ QuadTreeNode::QuadTreeNode(int w, int h, int x, int y) {
 bool QuadTreeNode::canContain(Point p) {
   auto pointXVal = p.getX();
   auto pointYVal = p.getY();
+
   if (pointXVal >= xCoord - width && pointXVal <= xCoord + width &&
-      pointYVal <= yCoord + height && pointYVal >= yCoord - height) {
+      pointYVal >= yCoord - height && pointYVal <= yCoord + height) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 bool QuadTreeNode::contains(QuadTreeNode node) {
@@ -35,7 +35,7 @@ int QuadTreeNode::getYCoord() { return yCoord; }
 
 bool QuadTreeNode::intersects(QuadTreeNode node) {
   return !(node.xCoord - node.width > xCoord + width ||
-           node.xCoord + width < xCoord - width ||
+           node.xCoord + node.width < xCoord - width ||
            node.yCoord - node.height > yCoord + height ||
-           node.yCoord + height < yCoord - height);
+           node.yCoord + node.height < yCoord - height);
 }

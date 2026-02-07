@@ -1,4 +1,5 @@
 #include "circle.hpp"
+#include <algorithm>
 
 Circle::Circle(int x, int y, int r) {
   xCoord = x;
@@ -13,19 +14,27 @@ bool Circle::canContain(Point p) {
   return distSquared <= radius * radius;
 }
 
-bool Circle::completeContains(
-    QuadTreeNode
-        node) { // for recursive call, save time on canContain function, if
-                // circle bigger than entire subnode, return all points
+bool Circle::completeContains(QuadTreeNode node) {
   int width = node.getWidth();
   int height = node.getHeight();
   int nodeX = node.getXCoord();
   int nodeY = node.getYCoord();
 
-  int dx = std::max(xCoord + radius, nodeX + width);
-  int dy = std::max(yCoord + radius, nodeY + height);
+  int corners[4][2] = {
+    {nodeX - width, nodeY - height}, 
+    {nodeX + width, nodeY - height}, 
+    {nodeX - width, nodeY + height},
+    {nodeX + width, nodeY + height}
+  };
 
-  return (dx * dx + dy * dy <= radius * radius);
+  for (int i = 0; i < 4; i++) {
+    int dx = corners[i][0] - xCoord;
+    int dy = corners[i][1] - yCoord;
+    if (dx * dx + dy * dy > radius * radius) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool Circle::intersects(QuadTreeNode treeNode) {

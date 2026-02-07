@@ -1,13 +1,10 @@
-# Compiled files
+
 *.o
 boids
-
-# Build directory
+.clangd
 build/
 
-# Mac files
 .DS_Store
 
-# IDE files
 .vscode/
 .idea/

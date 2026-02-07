@@ -1,8 +1,9 @@
 #include "point.hpp"
 
-Point::Point(double x, double y) {
+Point::Point(double x, double y, Boid* b) {
   xPoint = x;
   yPoint = y;
+  boid = b;
 }
 
 bool Point::equals(Point p1) {
@@ -16,3 +17,7 @@ bool Point::equals(Point p1) {
 double Point::getX() { return xPoint; }
 
 double Point::getY() { return yPoint; }
+
+Boid* Point::getBoid() {
+  return boid;
+}
