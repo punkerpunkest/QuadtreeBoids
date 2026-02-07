@@ -24,9 +24,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 
-rebuild: clean all
-
 run: all
 	./$(TARGET)
 
-.PHONY: all clean rebuild run
+.PHONY: all clean run
