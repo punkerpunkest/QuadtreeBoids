@@ -1,5 +1,6 @@
 #include "circle.hpp"
 #include "quadtreenode.hpp"
+#include "arena.hpp"
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <vector>
@@ -10,16 +11,17 @@ private:
   bool divided;
   QuadTreeNode boundary;
   struct QuadTreeNodes {
-    std::unique_ptr<QuadTree> northEast = nullptr;
-    std::unique_ptr<QuadTree> northWest = nullptr;
-    std::unique_ptr<QuadTree> southEast = nullptr; 
-    std::unique_ptr<QuadTree> southWest = nullptr;
+    QuadTree* northEast = nullptr;  
+    QuadTree* northWest = nullptr;  
+    QuadTree* southEast = nullptr;  
+    QuadTree* southWest = nullptr;  
   };
+  Arena* arena; 
   QuadTreeNodes nodes;
   std::vector<Point> points;
 
 public:
-  QuadTree(QuadTreeNode boundary, int capacity);
+  QuadTree(QuadTreeNode boundary, int capacity, Arena* arena);
   bool canContain(Point p);
   void insertPoint(Point p);
   void subDivide();

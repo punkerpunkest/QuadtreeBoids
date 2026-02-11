@@ -3,6 +3,7 @@
 #include "Boid.hpp"
 #include "quadtree.hpp"
 #include "quadtreenode.hpp"
+#include "arena.hpp"
 #include "point.hpp"
 #include <vector>
 #include <iostream>
@@ -15,18 +16,18 @@ int main() {
     window.setFramerateLimit(60);
     
     std::vector<Boid> boids;
-    boids.reserve(1000);
-    
-    for (int i = 0; i < 1000; ++i) {
-        float x = rand() % WIDTH;
-        float y = rand() % HEIGHT;
-        boids.emplace_back(x, y);
-    }
+    boids.reserve(30);
 
     int frameCount = 0;
     bool showQuadTree = true; 
     sf::Clock printClock;
-    
+    for (int i = 0; i < 30; i++) {
+        float x = rand() % WIDTH;
+        float y = rand() % HEIGHT;
+        boids.emplace_back(x, y);
+    }
+    Arena* arena = createArena(1024 * 1024);
+
     while (window.isOpen()) {
         while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>()) {
@@ -48,9 +49,10 @@ int main() {
         }
         
         frameCount++;
+        resetArena(arena);
 
         QuadTreeNode boundary(WIDTH / 2, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
-        QuadTree tree(boundary, 125);
+        QuadTree tree(boundary, 4, arena);
 
         {
             PROFILE("QuadTree Build");
@@ -87,5 +89,6 @@ int main() {
         }
     }
 
+    freeArena(arena);
     return 0;
 }

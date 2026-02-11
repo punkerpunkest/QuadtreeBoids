@@ -1,4 +1,4 @@
-CXX = g++
+CXX = clang++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2 -I./include -I/opt/homebrew/include
 LDFLAGS = -L/opt/homebrew/lib -lsfml-graphics -lsfml-window -lsfml-system
 

@@ -1,4 +1,4 @@
-#include "profiler.hpp" 
+#include "Profiler.hpp" 
 #include "quadtree.hpp"
 #include "circle.hpp"
 #include "quadtreenode.hpp"
@@ -6,8 +6,8 @@
 #include <memory>
 #include <vector>
 
-QuadTree::QuadTree(QuadTreeNode boundary, int capacity)
-    : boundary(boundary), capacity(capacity), divided(false) {};
+QuadTree::QuadTree(QuadTreeNode boundary, int capacity, Arena* arena)
+    : boundary(boundary), capacity(capacity), divided(false), arena(arena) {};
 
 bool QuadTree::canContain(Point p) {
   return boundary.canContain(p);
@@ -28,18 +28,16 @@ void QuadTree::insertPoint(Point p) {
         return;
       }
       this->subDivide();
-      std::vector<Point> oldPoints = points;
-      points.clear();
-      
-      for (auto& point : oldPoints) {
-        if (nodes.northEast->canContain(point)) {
-          nodes.northEast->insertPoint(point);
-        } else if (nodes.northWest->canContain(point)) {
-          nodes.northWest->insertPoint(point);
-        } else if (nodes.southEast->canContain(point)) {
-          nodes.southEast->insertPoint(point);
-        } else if (nodes.southWest->canContain(point)) {
-          nodes.southWest->insertPoint(point);
+      auto oldPoints = std::move(points);
+      for (auto& p : oldPoints) {
+        if (nodes.northEast->canContain(p)) {
+          nodes.northEast->insertPoint(p);
+        } else if (nodes.northWest->canContain(p)) {
+          nodes.northWest->insertPoint(p);
+        } else if (nodes.southEast->canContain(p)) {
+          nodes.southEast->insertPoint(p);
+        } else if (nodes.southWest->canContain(p)) {
+          nodes.southWest->insertPoint(p);
         }
       }
     }
@@ -77,10 +75,17 @@ void QuadTree::subDivide() {
   auto southWestBoundary = QuadTreeNode(
       width / 2, height / 2, xCoord - width / 2, yCoord + height / 2);
 
-  nodes.northEast = std::make_unique<QuadTree>(northEastBoundary, capacity);
-  nodes.northWest = std::make_unique<QuadTree>(northWestBoundary, capacity);
-  nodes.southEast = std::make_unique<QuadTree>(southEastBoundary, capacity);
-  nodes.southWest = std::make_unique<QuadTree>(southWestBoundary, capacity);
+  nodes.northEast = allocArenaType<QuadTree>(arena);
+  new (nodes.northEast) QuadTree(northEastBoundary, capacity, arena);
+
+  nodes.northWest = allocArenaType<QuadTree>(arena);
+  new (nodes.northWest) QuadTree(northWestBoundary, capacity, arena);
+
+  nodes.southEast = allocArenaType<QuadTree>(arena);
+  new (nodes.southEast) QuadTree(southEastBoundary, capacity, arena);
+
+  nodes.southWest = allocArenaType<QuadTree>(arena);
+  new (nodes.southWest) QuadTree(southWestBoundary, capacity, arena);
   
   divided = true;
 }
@@ -111,8 +116,7 @@ void QuadTree::query(QuadTree &node, std::vector<Point> &found) {
   }
 }
 
-void QuadTree::queryCircle(QuadTree &node, Circle &c,
-                           std::vector<Point> &found) {
+void QuadTree::queryCircle(QuadTree &node, Circle &c, std::vector<Point> &found) {
   {
     PROFILE("queryCircle - Intersection");
     if (!c.intersects(node.boundary)) {
@@ -137,7 +141,7 @@ void QuadTree::queryCircle(QuadTree &node, Circle &c,
   }
   
   {
-    PROFILE("queryCirlce - Check points");
+    PROFILE("queryCircle - Check points");
     for (auto &p : node.points) {
       if (c.canContain(p)) {
         found.push_back(p);
